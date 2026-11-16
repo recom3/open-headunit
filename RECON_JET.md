@@ -69,3 +69,11 @@ The saved evidence is `user_logs/android-auto-jet-dashboard.png`, `user_logs/and
 The Redmi and Jet joined the same router network on 2.4 GHz. Both obtained IPv4 addresses on the same subnet, and ICMP replies passed in both directions. Open Headunit was set to manual Head Unit Server mode so it could use the router link without hosting its own Wi-Fi Direct group.
 
 The Jet reached the Redmi over the router, and the Redmi refused TCP 5277 while its Android Auto Head Unit Server was stopped. Android Auto settings were opened on the Redmi. MIUI denied ADB touch input, so the server must be started from the Android Auto menu on the phone. Live projection over the shared network is pending that step. Local evidence is in `user_logs/android-auto-shared-wifi.txt`.
+
+### Live projection over the shared router
+
+After the user started the Redmi Head Unit Server, Open Headunit connected directly to it on TCP 5277 over the shared 2.4 GHz network. The Redmi's TCP table showed the Jet as the peer. This path did not use the PC USB relay or an ADB forward. Two tests rendered the live dashboard on the 428 × 240 HUD with the TI hardware decoder and an 800 × 480 H.264 stream. A tap on the Jet opened the Android Auto app launcher during the retry.
+
+Open Headunit logged a 15-second socket read timeout in both tests, about 68 and 62 seconds after each session entered its projecting state. The two devices could still exchange pings on the router after the timeouts, and the Redmi server was still listening. These checks verify the wireless video and touch paths. The cause of the periods without projection traffic remains undetermined.
+
+Local evidence is in `user_logs/android-auto-olive-dashboard.png`, `user_logs/android-auto-olive-launcher.png` and `user_logs/android-auto-olive-projection.txt`.
