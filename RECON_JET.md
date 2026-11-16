@@ -63,3 +63,9 @@ Google Desktop Head Unit 2.1 on the PC completed protocol 1.7 and TLS 1.2 over a
 Live dashboard sessions eventually ended with a socket idle timeout after 15 seconds without incoming traffic. Continuous wireless projection and turn-by-turn navigation remain unverified. The diagnostic relay and ADB forwards were removed, and the previous saved destination was restored. Wi-Fi is now enabled along with USB in Open Headunit's connection modes. The tested APK and source code are unchanged.
 
 The saved evidence is `user_logs/android-auto-jet-dashboard.png`, `user_logs/android-auto-jet-hud.png`, `user_logs/android-auto-live-jet.txt` and `user_logs/android-auto-live-redmi.txt`. For a wireless retest, put both devices on the same 2.4 GHz network and connect to the Redmi's LAN address while the Head Unit Server is running. This leaves the link independent of the app-owned Wi-Fi Direct group that the arbiter removed.
+
+### Shared 2.4 GHz Wi-Fi preparation
+
+The Redmi and Jet joined the same router network on 2.4 GHz. Both obtained IPv4 addresses on the same subnet, and ICMP replies passed in both directions. Open Headunit was set to manual Head Unit Server mode so it could use the router link without hosting its own Wi-Fi Direct group.
+
+The Jet reached the Redmi over the router, and the Redmi refused TCP 5277 while its Android Auto Head Unit Server was stopped. Android Auto settings were opened on the Redmi. MIUI denied ADB touch input, so the server must be started from the Android Auto menu on the phone. Live projection over the shared network is pending that step. Local evidence is in `user_logs/android-auto-shared-wifi.txt`.
