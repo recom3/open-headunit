@@ -320,6 +320,11 @@ internal class AapControlService(
                 val pingRequest = message.parse(Control.PingRequest.newBuilder()).build()
                 return pingRequest(pingRequest, message.channel)
             }
+            Control.ControlMsgType.MESSAGE_PING_RESPONSE_VALUE -> {
+                val response = message.parse(Control.PingResponse.newBuilder()).build()
+                aapTransport.notePingResponse(response.timestamp)
+                return 0
+            }
             Control.ControlMsgType.MESSAGE_NAV_FOCUS_REQUEST_VALUE -> {
                 val navigationFocusRequest = message.parse(Control.NavFocusRequestNotification.newBuilder()).build()
                 return navigationFocusRequest(navigationFocusRequest, message.channel)

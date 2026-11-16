@@ -21,6 +21,26 @@ import org.junit.Test
  */
 class ProjectionWatchdogPolicyTest {
     @Test
+    fun `a video burst after an idle picture starts a new freeze window`() {
+        val start = ProjectionWatchdogPolicy.displayStallStartMs(61_000L, 1_000L, 60_990L, 0L)
+        assertEquals(61_000L, start)
+        val quiet = ProjectionWatchdogPolicy.displayStallStartMs(63_000L, 1_000L, 60_990L, start)
+        assertEquals(0L, quiet)
+        assertEquals(121_000L, ProjectionWatchdogPolicy.displayStallStartMs(121_000L, 1_000L, 120_990L, quiet))
+    }
+
+    @Test
+    fun `video that keeps arriving without a draw accumulates freeze time`() {
+        var start = ProjectionWatchdogPolicy.displayStallStartMs(10_000L, 0L, 9_999L, 0L)
+        for (now in 12_000L..16_000L step ProjectionWatchdogPolicy.WATCHDOG_TICK_MS) {
+            start = ProjectionWatchdogPolicy.displayStallStartMs(now, 0L, now - 1, start)
+        }
+        assertEquals(10_000L, start)
+        assertTrue(16_000L - start >= ProjectionWatchdogPolicy.DISPLAY_FREEZE_MS)
+        assertEquals(0L, ProjectionWatchdogPolicy.displayStallStartMs(18_000L, 17_999L, 17_999L, start))
+    }
+
+    @Test
     fun `a repeated consumer stall escalates but Surface remains terminal`() {
         assertFalse(ProjectionWatchdogPolicy.shouldFallBackToSurface(0, false))
         assertFalse(ProjectionWatchdogPolicy.shouldFallBackToSurface(1, false))

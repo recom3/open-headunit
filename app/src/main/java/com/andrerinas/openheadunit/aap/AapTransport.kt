@@ -248,6 +248,33 @@ class AapTransport(
         return@Callback true
     }
 
+    @Volatile
+    private var lastSocketPingMs = 0L
+    private var socketPingReplies = 0
+
+    // Keep the control channel active even when the phone has no media to send.
+    private val socketKeepalive = object : Runnable {
+        override fun run() {
+            if (closing || !tlsWriter.isReady) return
+            val sentAt = SystemClock.elapsedRealtime()
+            val ping = Control.PingRequest.newBuilder().setTimestamp(sentAt).build()
+            val message = AapMessage(Channel.ID_CTR, Control.ControlMsgType.MESSAGE_PING_REQUEST_VALUE, ping)
+            lastSocketPingMs = sentAt
+            if (sendEncryptedMessage(message.data, message.size) == 0 && !closing) {
+                sendHandler?.postDelayed(this, SOCKET_PING_INTERVAL_MS)
+            }
+        }
+    }
+
+    internal fun notePingResponse(timestamp: Long) {
+        if (!isWireless || timestamp != lastSocketPingMs || timestamp == 0L) return
+        socketPingReplies++
+        if (socketPingReplies == 1 || socketPingReplies % 60 == 0) {
+            val rttMs = SystemClock.elapsedRealtime() - timestamp
+            AppLog.i("AapTransport: socket keepalive replies=$socketPingReplies rtt=${rttMs}ms")
+        }
+    }
+
     val isAlive: Boolean
         get() = pollThread?.isAlive ?: false
 
@@ -846,6 +873,7 @@ class AapTransport(
             cleanupStep("microphone") { retireMicrophone() }
             sendHandler?.removeCallbacks(focusCycleGainRunnable)
             sendHandler?.removeCallbacks(unrepairedCheckRunnable)
+            sendHandler?.removeCallbacks(socketKeepalive)
             pollThread?.quit()
             sendThread?.quit()
             videoThread?.quit()
@@ -1085,6 +1113,9 @@ class AapTransport(
             nightOverlayState
         )
         pollHandler?.sendEmptyMessage(MSG_POLL)
+        if (isWireless) {
+            sendHandler?.postDelayed(socketKeepalive, SOCKET_PING_INTERVAL_MS)
+        }
     }
 
     private fun handshake(connection: ProjectionConnection): Boolean {
@@ -1459,6 +1490,7 @@ class AapTransport(
     companion object {
         private const val MSG_POLL = 1
         private const val MSG_SEND = 2
+        private const val SOCKET_PING_INTERVAL_MS = 1000L
 
         /** Pooled video payload copies: enough for a fragment run and the one behind it. */
         /**
