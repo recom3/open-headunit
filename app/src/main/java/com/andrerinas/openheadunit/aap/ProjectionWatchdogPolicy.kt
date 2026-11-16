@@ -47,12 +47,21 @@ object ProjectionWatchdogPolicy {
      */
     const val DISPLAY_FREEZE_MS = 5_000L
 
+    private const val ACTIVE_VIDEO_INPUT_MS = 1_500L
+
+    /** Measure a freeze only across checks that see fresh video input and no recent draw. */
+    fun displayStallStartMs(nowMs: Long, drawnMs: Long, inputMs: Long, previousStartMs: Long): Long {
+        if (drawnMs < 0L || inputMs <= 0L || nowMs - inputMs > ACTIVE_VIDEO_INPUT_MS ||
+            (drawnMs > 0L && nowMs - drawnMs < WATCHDOG_TICK_MS)
+        ) return 0L
+        return if (previousStartMs == 0L) nowMs else maxOf(previousStartMs, drawnMs)
+    }
+
     /**
      * How often the projection watchdog looks. Detection runs at this granularity, so a condition
      * is seen up to one tick *after* its threshold is crossed - never before. What the tick cannot
      * do is shorten a deadline: anything racing [DISPLAY_FREEZE_MS] needs its margin under the
-     * threshold itself, plus whatever age the last drawn frame already had when the race started,
-     * since the watchdog measures from the draw.
+     * threshold itself. Each freeze check also requires fresh video input.
      */
     const val WATCHDOG_TICK_MS = 2_000L
 

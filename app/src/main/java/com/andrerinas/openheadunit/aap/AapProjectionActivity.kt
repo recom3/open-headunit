@@ -228,6 +228,7 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
                 return
             }
             if (isProjectionPausedByDevice) {
+                displayStallStartedMs = 0L
                 watchdogHandler.postDelayed(this, ProjectionWatchdogPolicy.WATCHDOG_TICK_MS)
                 return
             }
@@ -237,6 +238,7 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
             maybeRecoverWarmRelaunch()
             val lastFrame = videoDecoder.lastFrameRenderedMs
             if (lastFrame == 0L) {
+                displayStallStartedMs = 0L
                 // First frame hasn't arrived yet — handled by the starting overlay. If the phone is
                 // streaming video but nothing draws, offer to switch renderer (issue #767).
                 maybeOfferRendererConfirm()
@@ -697,14 +699,13 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
     // the right question: that path is about the display consumer freezing while video flows. The
     // warm-relaunch escalation used to share it and asks about the link instead, because there a
     // stream with no video is the normal idle screen rather than evidence of anything.
-    private val phoneAliveThresholdMs = 1500L
     private val displayStallRecoveryCooldownMs = 10000L
     private val displayStallRecoveryResetMs = 60000L
     private val maxDisplayStallRecoveries = 4
     private val collapseLongFrameFloor = 10L
     private var displayStallRecoveries = 0
     private var lastDisplayStallRecoveryMs = 0L
-    private var firstUndrawnMs = 0L
+    private var displayStallStartedMs = 0L
     // Sliding window of long frames per tick, with the clock reading each slot was written at.
     // The times are what make it a window: this check returns early whenever the phone is not
     // currently sending video, so the ticks that run are not evenly spaced and counting slots alone
@@ -736,21 +737,16 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
 
     private fun maybeRecoverFromDisplayStall() {
         if (!::projectionView.isInitialized) return
-        if (overlayState != OverlayState.HIDDEN) return
-        // SurfaceView has no per-frame draw callback (-1) and is already the robust fallback path.
-        val drawn = projectionView.lastFrameDrawnMs()
-        if (drawn < 0L) return
-        val input = videoDecoder.lastInputBytesReceivedMs
-        if (input <= 0L) return
-        val now = SystemClock.elapsedRealtime()
-        // Only act while the phone is still streaming video.
-        if (now - input > phoneAliveThresholdMs) return
-
-        // If the view is actively drawing frames (drawn within the last 2s), DO NOT tear down the surface.
-        // Recreating the view mid-stream causes black screen flashes, EGL disconnection, and touch loss.
-        if (drawn > 0L && (now - drawn < 2000L)) {
+        if (overlayState != OverlayState.HIDDEN) {
+            displayStallStartedMs = 0L
             return
         }
+        val now = SystemClock.elapsedRealtime()
+        displayStallStartedMs = ProjectionWatchdogPolicy.displayStallStartMs(
+            now, projectionView.lastFrameDrawnMs(), videoDecoder.lastInputBytesReceivedMs,
+            displayStallStartedMs,
+        )
+        if (displayStallStartedMs == 0L) return
 
         // Slide the long-frame window (this runs ~every 2s from the reconnecting watchdog, but only
         // on the ticks that get past the gates above, which is why each slot carries its time).
@@ -769,16 +765,8 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
             longFrameTickWindow, longFrameTickTimes, now
         )
 
-        // Baseline for the case where the consumer never drew a single frame after the overlay was
-        // dismissed (drawn stays 0): time it from when that state was first seen.
-        if (drawn == 0L) {
-            if (firstUndrawnMs == 0L) firstUndrawnMs = now
-        } else {
-            firstUndrawnMs = 0L
-        }
-        val effectiveDrawn = if (drawn == 0L) firstUndrawnMs else drawn
-
-        val frozen = effectiveDrawn > 0L && now - effectiveDrawn >= ProjectionWatchdogPolicy.DISPLAY_FREEZE_MS
+        val stallMs = now - displayStallStartedMs
+        val frozen = stallMs >= ProjectionWatchdogPolicy.DISPLAY_FREEZE_MS
         val collapsed = longFramesInWindow >= collapseLongFrameFloor
 
         if (!frozen && !collapsed) {
@@ -794,7 +782,7 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
         if (displayStallRecoveries >= maxDisplayStallRecoveries) return
         displayStallRecoveries++
         lastDisplayStallRecoveryMs = now
-        val reason = if (collapsed) "$longFramesInWindow slow frames in window" else "no draw for ${now - effectiveDrawn}ms"
+        val reason = if (collapsed) "$longFramesInWindow slow frames in window" else "no draw while video arrived for ${stallMs}ms"
 
         val effectiveMode = forcedViewModeOverride ?: settings.viewMode
         // Both MediaCodec and FFmpeg can render to a Surface after a consumer stalls.
@@ -813,7 +801,7 @@ class AapProjectionActivity : SurfaceActivity(), IProjectionView.Callbacks, Vide
             AppLog.w("Display stall ($reason). Rebuilding projection view (attempt $displayStallRecoveries). See issue #650.")
         }
         // The rebuilt view starts its counters from zero.
-        firstUndrawnMs = 0L
+        displayStallStartedMs = 0L
         prevLongFrameCount = 0L
         prevLongFrameTickMs = 0L
         longFrameTickWindow.fill(0L)
