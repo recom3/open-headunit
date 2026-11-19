@@ -1,5 +1,21 @@
 # Open Headunit on Recon Jet
 
+## Startup and recurring notifications
+
+On devices identified as manufacturer `Recon Instruments`, model `JET`, OHU
+clears Android's system car mode instead of enabling it. Recon Message Center
+otherwise repeatedly displays the ongoing car-mode notification over projection.
+This change preserves OHU's foreground-service notification and other system
+notifications; it does not disable or uninstall Recon Message Center. Other
+device models retain the existing car-mode behaviour.
+
+For automatic startup, enable the existing **Start on boot** setting and leave
+**Wait in the background** off to open OHU's screen. For the Pixel hotspot setup,
+use **Head Unit Server AUTO** and **reconnect last session**, with the phone's
+hotspot and Android Auto Head Unit Server running. These are per-device settings;
+generic device defaults are unchanged. The existing boot-loop protection remains
+enabled. This does not address a Jet that loses battery power.
+
 ## Build
 
 The tested APK came from the `recom3/open-headunit` fork at `976fa05850bfe08eb9d15201463b1ba187b10219`. The local branch is `codex/recon-jet-api16`. `origin` points to the fork and `upstream` points to `andreknieriem/open-headunit`.

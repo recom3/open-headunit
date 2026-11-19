@@ -1,5 +1,6 @@
 # Changelog
 ### 4.1.0 (upcoming)
+- Avoid Recon Jet Message Center alerts caused by Android's ongoing car-mode notification.
 - Make selection of the connection warning's close button clearer with a high-contrast focus outline.
 - Fix legacy Android Auto Wi-Fi Direct bring-up, thanks to @luansagan-cell
 - Fix(usb): match AAWireless adapters idling as 18D1:4EE1, thaknks to @PashaKagan
