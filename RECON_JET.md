@@ -16,6 +16,20 @@ hotspot and Android Auto Head Unit Server running. These are per-device settings
 generic device defaults are unchanged. The existing boot-loop protection remains
 enabled. This does not address a Jet that loses battery power.
 
+Recon's charging-startup screen can switch Wi-Fi off even when Android initially
+restored it. On a Recon Jet below Android 10, OHU makes one Wi-Fi enable request
+when its service starts with Head Unit Server AUTO, reconnect-last-session on,
+and Wi-Fi selected. The request runs after the boot-loop guard. It does not
+cycle an already enabled radio or continuously override later user changes.
+
+Recon Message Center also turns OHU's foreground-service status updates into
+pop-up alerts. Suppressing system car mode alone does not stop those. On the
+tested Jet, turn off **Show notifications** in Android **App info → Open
+Headunit**, then restart OHU. This is a persistent, reversible per-device Android
+setting, not something the APK silently changes. OHU can retain its foreground
+service while Android blocks its notification updates. Re-enable that checkbox
+to restore OHU notifications. The app does not disable Recon Message Center.
+
 ## Build
 
 The tested APK came from the `recom3/open-headunit` fork at `976fa05850bfe08eb9d15201463b1ba187b10219`. The local branch is `codex/recon-jet-api16`. `origin` points to the fork and `upstream` points to `andreknieriem/open-headunit`.

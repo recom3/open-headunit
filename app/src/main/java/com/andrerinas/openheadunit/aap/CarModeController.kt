@@ -2,13 +2,12 @@ package com.andrerinas.openheadunit.aap
 
 import android.app.UiModeManager
 import android.content.Context
-import android.os.Build
+import com.andrerinas.openheadunit.utils.ReconJetDevice
 
 /** Owns the optional Android car UI mode, independently of the projection service. */
 object CarModeController {
     fun setup(context: Context, carLauncherActive: Boolean): UiModeManager? {
-        val reconJet = Build.MANUFACTURER.equals("Recon Instruments", ignoreCase = true) &&
-            Build.MODEL.equals("JET", ignoreCase = true)
+        val reconJet = ReconJetDevice.isReconJet()
         if (carLauncherActive && !reconJet) return null
 
         val manager = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
