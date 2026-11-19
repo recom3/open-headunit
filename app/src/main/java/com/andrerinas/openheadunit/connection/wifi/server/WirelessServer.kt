@@ -1,6 +1,5 @@
 package com.andrerinas.openheadunit.connection.wifi.server
 
-import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.os.SystemClock
@@ -73,11 +72,13 @@ class WirelessServer(
     fun start() {
         val commManager = App.provide(service).commManager
 
-        nsdManager = service.getSystemService(Context.NSD_SERVICE) as? NsdManager
-        if (nsdManager == null) {
-            AppLog.e("WirelessServer: NsdManager not available on this device.")
-        } else if (registerNsd) {
-            registerNsd()
+        nsdManager = WirelessServerNsd.manager(service, registerNsd)
+        if (registerNsd) {
+            if (nsdManager == null) {
+                AppLog.i("WirelessServer: platform NSD advertising skipped; direct TCP discovery remains available")
+            } else {
+                registerNsd()
+            }
         }
 
         // Outside the coroutine on purpose. Everything below runs on a scope that can already

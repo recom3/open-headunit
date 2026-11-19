@@ -22,6 +22,12 @@ when its service starts with Head Unit Server AUTO, reconnect-last-session on,
 and Wi-Fi selected. The request runs after the boot-loop guard. It does not
 cycle an already enabled radio or continuously override later user changes.
 
+On API-16 Recon Jet, the platform NSD client is skipped. A reproduced boot run
+crashed Android's `NsdService` with a missing `ClientInfo`, restarting
+`system_server` and leaving Wi-Fi unusable. The TCP listener still starts, and
+Head Unit Server discovery uses the existing direct gateway/subnet scan.
+Other device models and later Android versions retain requested NSD advertising.
+
 Recon Message Center also turns OHU's foreground-service status updates into
 pop-up alerts. Suppressing system car mode alone does not stop those. On the
 tested Jet, turn off **Show notifications** in Android **App info → Open
