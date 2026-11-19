@@ -1,7 +1,6 @@
 # Changelog
 ### 4.1.0 (upcoming)
 - Avoid the legacy platform NSD client on API-16 Recon Jet to prevent a system-service crash at startup.
-- Restore Wi-Fi at service startup for automatic Head Unit Server connections on Recon Jet.
 - Avoid Recon Jet Message Center alerts caused by Android's ongoing car-mode notification.
 - Make selection of the connection warning's close button clearer with a high-contrast focus outline.
 - Fix legacy Android Auto Wi-Fi Direct bring-up, thanks to @luansagan-cell

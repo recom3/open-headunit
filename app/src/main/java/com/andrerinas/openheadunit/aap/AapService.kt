@@ -1303,16 +1303,6 @@ class AapService : Service() {
         if (applyBootLoopGuard()) {
             AppLog.w("AapService: Wireless bring-up paused by the boot-loop guard. USB and the rest of the app are unaffected.")
         } else {
-            try {
-                if (com.andrerinas.openheadunit.connection.wifi.ReconJetWifiStartup.enableForAutomaticServer(
-                        this, settings.wifiConnectionMode, settings.autoConnectLastSession, settings.showsWifi(),
-                    )
-                ) {
-                    AppLog.i("Recon Jet: enabled Wi-Fi for automatic Head Unit Server connection")
-                }
-            } catch (e: Exception) {
-                AppLog.w("Recon Jet: could not enable startup Wi-Fi: ${e.message}")
-            }
             initWifiModeWithOptionalWait()
         }
         scheduleBootLoopStrikeClear()

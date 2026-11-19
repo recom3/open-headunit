@@ -9,18 +9,18 @@ This change preserves OHU's foreground-service notification and other system
 notifications; it does not disable or uninstall Recon Message Center. Other
 device models retain the existing car-mode behaviour.
 
-For automatic startup, enable the existing **Start on boot** setting and leave
-**Wait in the background** off to open OHU's screen. For the Pixel hotspot setup,
-use **Head Unit Server AUTO** and **reconnect last session**, with the phone's
-hotspot and Android Auto Head Unit Server running. These are per-device settings;
-generic device defaults are unchanged. The existing boot-loop protection remains
-enabled. This does not address a Jet that loses battery power.
+For a simple manual startup, first enable Wi-Fi in the Jet's settings and join
+the phone's saved hotspot, then open OHU. Use **Head Unit Server AUTO** and
+**reconnect last session**, with the phone's hotspot and Android Auto Head Unit
+Server running. The connection button opens setup; it is not required when the
+saved server reconnects automatically. Leave **Start on boot** off for this
+manual sequence. These are per-device settings; generic defaults are unchanged.
 
 Recon's charging-startup screen can switch Wi-Fi off even when Android initially
-restored it. On a Recon Jet below Android 10, OHU makes one Wi-Fi enable request
-when its service starts with Head Unit Server AUTO, reconnect-last-session on,
-and Wi-Fi selected. The request runs after the boot-loop guard. It does not
-cycle an already enabled radio or continuously override later user changes.
+restored it. In this Head Unit Server setup, OHU does not automatically enable
+or cycle the radio. The existing
+boot-loop protection remains enabled. This does not address a Jet that loses
+battery power.
 
 On API-16 Recon Jet, the platform NSD client is skipped. A reproduced boot run
 crashed Android's `NsdService` with a missing `ClientInfo`, restarting
