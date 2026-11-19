@@ -18,7 +18,7 @@ import org.robolectric.shadows.ShadowBuild
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [28])
 class CarModeControllerTest {
-    private val context get() = RuntimeEnvironment.getApplication<Application>()
+    private val context get() = RuntimeEnvironment.getApplication()
     private val manager get() = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
     @Before
