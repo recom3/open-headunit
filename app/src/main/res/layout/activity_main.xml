@@ -181,7 +181,7 @@
                 android:layout_marginStart="8dp"
                 app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
                 app:tint="?android:attr/textColorSecondary"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_warning_dismiss"
                 android:contentDescription="@string/connection_issue_banner_dismiss" />
 
         </LinearLayout>

@@ -1,5 +1,6 @@
 # Changelog
 ### 4.1.0 (upcoming)
+- Make selection of the connection warning's close button clearer with a high-contrast focus outline.
 - Fix legacy Android Auto Wi-Fi Direct bring-up, thanks to @luansagan-cell
 - Fix(usb): match AAWireless adapters idling as 18D1:4EE1, thaknks to @PashaKagan
 - Allow embedding the projection activity, thanks to @codepdbh
