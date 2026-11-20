@@ -1,13 +1,16 @@
 # Changelog
 ### 4.1.0 (upcoming)
-- Avoid the legacy platform NSD client on API-16 Recon Jet to prevent a system-service crash at startup.
-- Avoid Recon Jet Message Center alerts caused by Android's ongoing car-mode notification.
-- Make selection of the connection warning's close button clearer with a high-contrast focus outline.
 - Fix legacy Android Auto Wi-Fi Direct bring-up, thanks to @luansagan-cell
 - Fix(usb): match AAWireless adapters idling as 18D1:4EE1, thaknks to @PashaKagan
 - Allow embedding the projection activity, thanks to @codepdbh
 - Feat: Send volume buttons to the phone, and add speed-dependent volume, thanks to @Megalodon-sharky
 - Feat(usb): add wireless dongle display option for home screen
+
+### 4.0.1
+- Avoid the legacy platform NSD client on API-16 Recon Jet to prevent a system-service crash at startup.
+- Avoid Recon Jet Message Center alerts caused by Android's ongoing car-mode notification.
+- Make selection of the connection warning's close button clearer with a high-contrast focus outline.
+- Document manual Wi-Fi startup and Android's per-app notification opt-out for Recon Jet.
 
 ### 4.0.0
 - New Homescreen, favorites under the card on 16:9 units, and drawer tabs for shortcuts, thanks to @andrecuellar
