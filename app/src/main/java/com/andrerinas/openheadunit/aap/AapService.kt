@@ -1312,19 +1312,15 @@ class AapService : Service() {
 
     /** Enables Android Automotive UI mode so the system uses car-optimised layouts. */
     private fun setupCarMode() {
-        val appSettings = App.provide(this).settings
-        if (appSettings.isCarLauncherActive) {
-            AppLog.i("AapService: Car launcher is active, skipping enableCarMode to prevent 'Driving app running' notification")
-            return
-        }
         try {
-            val mgr = getSystemService(UI_MODE_SERVICE) as? UiModeManager
+            val mgr = CarModeController.setup(this, App.provide(this).settings.isCarLauncherActive)
             if (mgr != null) {
                 uiModeManager = mgr
-                mgr.enableCarMode(0)
+            } else {
+                AppLog.i("AapService: System car mode is not enabled for this device or launcher")
             }
         } catch (e: Exception) {
-            AppLog.w("AapService: Failed to enable car mode: ${e.message}")
+            AppLog.w("AapService: Failed to configure car mode: ${e.message}")
         }
     }
 

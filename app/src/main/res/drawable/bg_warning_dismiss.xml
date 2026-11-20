@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Keep touch feedback, with a persistent high-contrast outline for directional focus. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/selectable_borderless" />
+    <item>
+        <selector>
+            <item android:state_focused="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="@android:color/transparent" />
+                    <stroke android:width="3dp" android:color="@color/adaptive_text_color" />
+                    <corners android:radius="4dp" />
+                </shape>
+            </item>
+            <item android:drawable="@android:color/transparent" />
+        </selector>
+    </item>
+</layer-list>

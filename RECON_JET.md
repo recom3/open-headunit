@@ -1,5 +1,41 @@
 # Open Headunit on Recon Jet
 
+## Startup and recurring notifications
+
+On devices identified as manufacturer `Recon Instruments`, model `JET`, OHU
+clears Android's system car mode instead of enabling it. Recon Message Center
+otherwise repeatedly displays the ongoing car-mode notification over projection.
+This change preserves OHU's foreground-service notification and other system
+notifications; it does not disable or uninstall Recon Message Center. Other
+device models retain the existing car-mode behaviour.
+
+For a simple manual startup, first enable Wi-Fi in the Jet's settings and join
+the phone's saved hotspot, then open OHU. Use **Head Unit Server AUTO** and
+**reconnect last session**, with the phone's hotspot and Android Auto Head Unit
+Server running. The connection button opens setup; it is not required when the
+saved server reconnects automatically. Leave **Start on boot** off for this
+manual sequence. These are per-device settings; generic defaults are unchanged.
+
+Recon's charging-startup screen can switch Wi-Fi off even when Android initially
+restored it. In this Head Unit Server setup, OHU does not automatically enable
+or cycle the radio. The existing
+boot-loop protection remains enabled. This does not address a Jet that loses
+battery power.
+
+On API-16 Recon Jet, the platform NSD client is skipped. A reproduced boot run
+crashed Android's `NsdService` with a missing `ClientInfo`, restarting
+`system_server` and leaving Wi-Fi unusable. The TCP listener still starts, and
+Head Unit Server discovery uses the existing direct gateway/subnet scan.
+Other device models and later Android versions retain requested NSD advertising.
+
+Recon Message Center also turns OHU's foreground-service status updates into
+pop-up alerts. Suppressing system car mode alone does not stop those. On the
+tested Jet, turn off **Show notifications** in Android **App info → Open
+Headunit**, then restart OHU. This is a persistent, reversible per-device Android
+setting, not something the APK silently changes. OHU can retain its foreground
+service while Android blocks its notification updates. Re-enable that checkbox
+to restore OHU notifications. The app does not disable Recon Message Center.
+
 ## Build
 
 The tested APK came from the `recom3/open-headunit` fork at `976fa05850bfe08eb9d15201463b1ba187b10219`. The local branch is `codex/recon-jet-api16`. `origin` points to the fork and `upstream` points to `andreknieriem/open-headunit`.
